@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+- Release workflow: pushing a `v*` tag builds the app and publishes a GitHub Release with a zip and its SHA-256.
+- The app is a universal binary (arm64 and x86_64).
+- `Scripts/bundle.sh`: `--no-install` (or `MEMWATCH_NO_INSTALL=1`) builds the app without installing it; `MEMWATCH_VERSION` sets the app version.
+- README: Download and Releasing sections.
+
 ## 0.1.0 — first release
 
 - Menu bar text `MEM NN%` with warning (yellow) and critical (red) levels.

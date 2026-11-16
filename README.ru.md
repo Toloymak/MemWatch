@@ -25,9 +25,25 @@
 - macOS 14 (Sonoma) или новее.
 - Toolchain Swift 6 (Xcode 16 или новее, либо подходящие Command Line Tools).
 
+## Скачать
+
+MemWatch нет в магазине приложений. Готовое приложение можно скачать из GitHub Releases:
+
+1. Откройте [Releases](https://github.com/Toloymak/MemWatch/releases) и скачайте `MemWatch-<версия>.zip`.
+2. Распакуйте его.
+3. Перенесите `MemWatch.app` в `/Applications` (или в `~/Applications`).
+
+Приложение подписано ad-hoc и не нотаризовано, поэтому macOS Gatekeeper блокирует первый запуск. Чтобы открыть его, нажмите на `MemWatch.app` правой кнопкой мыши, выберите Open (Открыть) и ещё раз нажмите Open. Или снимите флаг карантина в Терминале:
+
+```bash
+xattr -dr com.apple.quarantine /Applications/MemWatch.app
+```
+
+Приложение универсальное: оно работает на Mac с Apple silicon и с Intel.
+
 ## Установка
 
-MemWatch нет в магазине приложений. Вы собираете его сами.
+Чтобы собрать его самому из исходников:
 
 ```bash
 git clone https://github.com/Toloymak/MemWatch.git
@@ -39,6 +55,8 @@ open ~/Applications/MemWatch.app
 `Scripts/bundle.sh` собирает release-бинарник, создаёт `build/MemWatch.app`, подписывает его ad-hoc и копирует в `~/Applications/MemWatch.app`. Если MemWatch уже запущен, скрипт сначала попросит его закрыться.
 
 Только сборка, без app-бандла: `swift build -c release`.
+
+Чтобы собрать `build/MemWatch.app`, не закрывая и не заменяя установленное приложение, запустите `Scripts/bundle.sh --no-install` (или задайте `MEMWATCH_NO_INSTALL=1`). Версию приложения задаёт `MEMWATCH_VERSION`, например `MEMWATCH_VERSION=0.2.0 Scripts/bundle.sh`. По умолчанию `0.1.0`.
 
 Первый запуск:
 
@@ -162,6 +180,16 @@ MemWatch делает замер каждые 3 секунды, а также с
 3. Удалите `~/Applications/MemWatch.app`.
 4. Удалите `~/Library/Logs/MemWatch.log`.
 5. Если он есть, удалите `~/Library/LaunchAgents/local.memwatch.plist`.
+
+## Выпуск релиза
+
+Релизы делает GitHub Actions (`.github/workflows/release.yml`). Чтобы выпустить релиз, отправьте тег версии:
+
+```bash
+git tag v0.2.0 && git push origin v0.2.0
+```
+
+Workflow собирает приложение, упаковывает его в zip и создаёт GitHub Release с zip-файлом и файлом `.sha256`. Тег с `-`, например `v0.2.0-beta.1`, создаёт prerelease. Workflow можно запустить и вручную на вкладке Actions. Тогда он только собирает zip и сохраняет его как артефакт workflow. Релиз при этом не создаётся.
 
 ## Лицензия
 

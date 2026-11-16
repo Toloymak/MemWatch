@@ -27,9 +27,27 @@ red early, sends a notification, and shows which apps use the most memory.
 - macOS 14 (Sonoma) or newer.
 - Swift 6 toolchain (Xcode 16 or newer, or matching Command Line Tools).
 
+## Download
+
+MemWatch is not in an app store. You can download a ready app from GitHub Releases:
+
+1. Open [Releases](https://github.com/Toloymak/MemWatch/releases) and download `MemWatch-<version>.zip`.
+2. Unzip it.
+3. Move `MemWatch.app` to `/Applications` (or `~/Applications`).
+
+The app is signed ad-hoc and is not notarized, so macOS Gatekeeper blocks the first
+launch. To open it, right-click `MemWatch.app` and choose Open, then click Open again.
+Or remove the quarantine flag in Terminal:
+
+```bash
+xattr -dr com.apple.quarantine /Applications/MemWatch.app
+```
+
+The app is universal: it runs on Apple silicon and Intel Macs.
+
 ## Install
 
-MemWatch is not in an app store. You build it yourself.
+To build it yourself from source:
 
 ```bash
 git clone https://github.com/Toloymak/MemWatch.git
@@ -43,6 +61,11 @@ ad-hoc, and copies it to `~/Applications/MemWatch.app`. If MemWatch is already r
 the script asks it to quit first.
 
 To build only, without an app bundle: `swift build -c release`.
+
+To make `build/MemWatch.app` without quitting or replacing the installed app, run
+`Scripts/bundle.sh --no-install` (or set `MEMWATCH_NO_INSTALL=1`). To set the app
+version, set `MEMWATCH_VERSION`, for example `MEMWATCH_VERSION=0.2.0 Scripts/bundle.sh`.
+The default is `0.1.0`.
 
 First run:
 
@@ -169,6 +192,20 @@ Log file: `~/Library/Logs/MemWatch.log`. It has JSON lines and rotates at 5 MB.
 3. Delete `~/Applications/MemWatch.app`.
 4. Delete `~/Library/Logs/MemWatch.log`.
 5. If it exists, delete `~/Library/LaunchAgents/local.memwatch.plist`.
+
+## Releasing
+
+Releases are made by GitHub Actions (`.github/workflows/release.yml`). To cut a release,
+push a version tag:
+
+```bash
+git tag v0.2.0 && git push origin v0.2.0
+```
+
+The workflow builds the app, zips it, and creates a GitHub Release with the zip and
+its `.sha256` file. A tag with `-` in it, like `v0.2.0-beta.1`, makes a prerelease.
+You can also start the workflow by hand from the Actions tab. That only builds the zip
+and keeps it as a workflow artifact. It does not make a release.
 
 ## License
 

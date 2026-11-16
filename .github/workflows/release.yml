@@ -1,0 +1,87 @@
+# Builds MemWatch.app and publishes it as a GitHub Release.
+# - Push a tag like v0.2.0: build, then create the release (tag with "-" = prerelease).
+# - Manual run (workflow_dispatch): build and upload a workflow artifact only.
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: macos-26
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: latest-stable
+
+      - name: Show toolchain
+        run: |
+          xcodebuild -version
+          swift --version
+
+      - name: Pick version
+        id: version
+        run: |
+          if [ "$GITHUB_REF_TYPE" = "tag" ]; then
+            VERSION="${GITHUB_REF_NAME#v}"
+          else
+            VERSION="0.0.0-dev+${GITHUB_SHA::7}"
+          fi
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "Version: $VERSION"
+
+      - name: Build app
+        env:
+          MEMWATCH_VERSION: ${{ steps.version.outputs.version }}
+        run: Scripts/bundle.sh --no-install
+
+      - name: Zip app
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          mkdir dist
+          ditto -c -k --keepParent build/MemWatch.app "dist/MemWatch-$VERSION.zip"
+          cd dist
+          shasum -a 256 "MemWatch-$VERSION.zip" > "MemWatch-$VERSION.zip.sha256"
+          cat "MemWatch-$VERSION.zip.sha256"
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: MemWatch-${{ steps.version.outputs.version }}
+          path: dist/*
+          if-no-files-found: error
+
+  release:
+    # Only for tag pushes. This is the only job that can write to the repo.
+    if: github.ref_type == 'tag'
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          name: MemWatch-${{ needs.build.outputs.version }}
+          path: dist
+
+      - name: Create release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ needs.build.outputs.version }}
+        run: |
+          PRERELEASE=()
+          if [[ "$GITHUB_REF_NAME" == *-* ]]; then PRERELEASE=(--prerelease); fi
+          gh release create "$GITHUB_REF_NAME" dist/* \
+            --repo "$GITHUB_REPOSITORY" \
+            --title "MemWatch $VERSION" \
+            --generate-notes \
+            "${PRERELEASE[@]}"
