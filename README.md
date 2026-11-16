@@ -1,5 +1,7 @@
 # MemWatch
 
+**English** | [Русский](README.ru.md)
+
 A small macOS menu bar app that warns you before memory pressure freezes your Mac.
 
 <!-- screenshot: docs/screenshot.png -->
