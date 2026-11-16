@@ -1,0 +1,9 @@
+.build/
+build/
+.swiftpm/
+xcuserdata/
+*.xcodeproj/project.xcworkspace/xcuserdata/
+DerivedData/
+.DS_Store
+# No dependencies, so the lock file is not needed.
+Package.resolved
