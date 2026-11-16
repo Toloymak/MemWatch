@@ -30,7 +30,7 @@
 MemWatch нет в магазине приложений. Вы собираете его сами.
 
 ```bash
-git clone <repo-url> MemWatch
+git clone https://github.com/Toloymak/MemWatch.git
 cd MemWatch
 Scripts/bundle.sh
 open ~/Applications/MemWatch.app

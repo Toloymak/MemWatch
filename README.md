@@ -32,7 +32,7 @@ red early, sends a notification, and shows which apps use the most memory.
 MemWatch is not in an app store. You build it yourself.
 
 ```bash
-git clone <repo-url> MemWatch
+git clone https://github.com/Toloymak/MemWatch.git
 cd MemWatch
 Scripts/bundle.sh
 open ~/Applications/MemWatch.app
